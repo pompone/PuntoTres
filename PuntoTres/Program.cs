@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
 
@@ -10,9 +12,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Cultura por defecto (decimales con coma y fechas dd/MM/yyyy)
+var ci = new CultureInfo("es-AR"); // o "es-ES"
+CultureInfo.DefaultThreadCurrentCulture = ci;
+CultureInfo.DefaultThreadCurrentUICulture = ci;
+
 var app = builder.Build();
 
-// Aplicar migraciones autom·ticamente SOLO en producciÛn (Render)
+// Aplicar migraciones autom√°ticamente SOLO en producci√≥n (Render)
 if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
@@ -27,13 +34,18 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
+//Localizaci√≥n (tiene que ir antes de routing)
+app.UseRequestLocalization(new RequestCulture(ci));
+
+app.UseStaticFiles();
 app.UseRouting();
-// app.UseAuthorization(); // dejalo comentado si no us·s auth
+// app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=SolucionPreparadas}/{action=Index}/{id?}");
 
 app.Run();
+
+
