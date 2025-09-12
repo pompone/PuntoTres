@@ -13,18 +13,27 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Cultura por defecto (decimales con coma y fechas dd/MM/yyyy)
-var ci = new CultureInfo("es-AR"); // o "es-ES"
+var ci = new CultureInfo("es-AR");
 CultureInfo.DefaultThreadCurrentCulture = ci;
 CultureInfo.DefaultThreadCurrentUICulture = ci;
 
 var app = builder.Build();
 
-// Aplicar migraciones automáticamente SOLO en producción (Render)
+//  RequestLocalization con OPTIONS (no RequestCulture directo)
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(ci),
+    SupportedCultures = new[] { ci },
+    SupportedUICultures = new[] { ci }
+};
+app.UseRequestLocalization(localizationOptions);
+
+// Migraciones SOLO en producción (Render)
 if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // crea/actualiza el esquema al iniciar
+    db.Database.Migrate();
 }
 
 if (!app.Environment.IsDevelopment())
@@ -34,11 +43,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-//Localización (tiene que ir antes de routing)
-app.UseRequestLocalization(new RequestCulture(ci));
-
 app.UseStaticFiles();
+
 app.UseRouting();
 // app.UseAuthorization();
 
@@ -47,5 +53,7 @@ app.MapControllerRoute(
     pattern: "{controller=SolucionPreparadas}/{action=Index}/{id?}");
 
 app.Run();
+
+
 
 
