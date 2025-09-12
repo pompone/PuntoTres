@@ -1,0 +1,139 @@
+﻿@model IEnumerable<PuntoTres.Models.SolucionPreparada>
+
+@{
+    ViewData["Title"] = "Stock de soluciones preparadas";
+    var fDesde = Convert.ToString(ViewData["fechaInicio"]);
+    var fHasta = Convert.ToString(ViewData["fechaFin"]);
+    var hayFiltro = !string.IsNullOrEmpty(fDesde) || !string.IsNullOrEmpty(fHasta);
+}
+
+<h1 class="h3 mb-3">Stock de soluciones preparadas</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Nueva solución</a>
+</p>
+
+<!-- Filtro por fecha -->
+<form asp-action="Index" method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <label for="fechaInicio" class="form-label">Desde</label>
+        <input type="date" id="fechaInicio" name="fechaInicio"
+               value="@(fDesde ?? "")" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label for="fechaFin" class="form-label">Hasta</label>
+        <input type="date" id="fechaFin" name="fechaFin"
+               value="@(fHasta ?? "")" class="form-control" />
+    </div>
+    <div class="col-auto d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+    </div>
+</form>
+
+@if (hayFiltro)
+{
+    DateTime? desde = null;
+    DateTime? hasta = null;
+
+    if (!string.IsNullOrEmpty(fDesde) && DateTime.TryParse(fDesde, out var d))
+    {
+        desde = d;
+    }
+    if (!string.IsNullOrEmpty(fHasta) && DateTime.TryParse(fHasta, out var h))
+    {
+        hasta = h;
+    }
+
+    <div class="alert alert-info py-2">
+        Rango aplicado:
+        <strong>Desde</strong> @(desde.HasValue? desde.Value.ToString("dd/MM/yyyy") : "—")
+        <strong>Hasta</strong> @(hasta.HasValue? hasta.Value.ToString("dd/MM/yyyy") : "—")
+    </div>
+}
+
+
+@if (!(Model?.Any() ?? false))
+{
+    if (hayFiltro)
+    {
+        <div class="alert alert-warning">No se encontraron soluciones en el rango seleccionado.</div>
+    }
+    else
+    {
+        <div class="alert alert-info">No hay soluciones registradas todavía.</div>
+    }
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle" style="min-width: 1200px;">
+            <thead class="table-light">
+                <tr>
+                    <th>@Html.DisplayNameFor(m => m.Fecha)</th>
+                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                    <th>@Html.DisplayNameFor(m => m.CantidadBase) (g/ml)</th>
+                    <th>@Html.DisplayNameFor(m => m.VolumenFinal) (ml)</th>
+                    <th>@Html.DisplayNameFor(m => m.CodigoInterno)</th>
+                    <th>@Html.DisplayNameFor(m => m.Lote)</th>
+                    <th>@Html.DisplayNameFor(m => m.Marca)</th>
+                    <th>@Html.DisplayNameFor(m => m.ConcentracionObtenida)</th>
+                    <th>@Html.DisplayNameFor(m => m.IdReactivo)</th>
+                    <th>@Html.DisplayNameFor(m => m.FechaVencimiento)</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.CantidadBase?.ToString("0.##")</td>
+                        <td>@item.VolumenFinal.ToString("0.##")</td>
+                        <td>@item.CodigoInterno</td>
+                        <td>@item.Lote</td>
+                        <td>@item.Marca</td>
+                        <td>@item.ConcentracionObtenida</td>
+                        <td>@item.IdReactivo</td>
+                        <td>
+                            @if (item.FechaVencimiento.HasValue)
+                            {
+                                var vencida = item.FechaVencimiento.Value.Date < DateTime.Today;
+                                <span>@item.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
+                                <span class="badge @(vencida ? "text-bg-danger" : "text-bg-success") ms-1">
+                                    @(vencida ? "Vencida" : "Vigente")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Sin fecha</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               asp-route-fechaInicio="@(fDesde)"
+                               asp-route-fechaFin="@(fHasta)"
+                               class="btn btn-sm btn-primary btn-action">Editar</a>
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               asp-route-fechaInicio="@(fDesde)"
+                               asp-route-fechaFin="@(fHasta)"
+                               class="btn btn-sm btn-secondary btn-action">Detalles</a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               asp-route-fechaInicio="@(fDesde)"
+                               asp-route-fechaFin="@(fHasta)"
+                               class="btn btn-sm btn-danger btn-action">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
