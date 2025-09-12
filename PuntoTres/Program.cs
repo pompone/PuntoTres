@@ -1,5 +1,4 @@
-using System.Globalization;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
 
@@ -12,28 +11,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Cultura por defecto (decimales con coma y fechas dd/MM/yyyy)
-var ci = new CultureInfo("es-AR");
-CultureInfo.DefaultThreadCurrentCulture = ci;
-CultureInfo.DefaultThreadCurrentUICulture = ci;
+//Persistir las claves de Data Protection (antiforgery) en PostgreSQL
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<AppDbContext>()
+    .SetApplicationName("PuntoTres");
 
 var app = builder.Build();
 
-//  RequestLocalization con OPTIONS (no RequestCulture directo)
-var localizationOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture(ci),
-    SupportedCultures = new[] { ci },
-    SupportedUICultures = new[] { ci }
-};
-app.UseRequestLocalization(localizationOptions);
-
-// Migraciones SOLO en producciÃ³n (Render)
+// Aplicar migraciones automáticamente SOLO en producción (Render)
 if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    db.Database.Migrate(); // crea/actualiza el esquema al iniciar (incluye DataProtectionKeys)
 }
 
 if (!app.Environment.IsDevelopment())
@@ -46,14 +36,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-// app.UseAuthorization();
+// app.UseAuthorization(); 
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=SolucionPreparadas}/{action=Index}/{id?}");
 
 app.Run();
-
-
-
-
