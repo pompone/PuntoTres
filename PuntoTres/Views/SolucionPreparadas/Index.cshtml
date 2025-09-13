@@ -111,29 +111,33 @@ else
                             }
                         </td>
                         <td class="text-center">
-                            <a asp-action="Edit"
-                               asp-route-id="@item.Id"
-                               asp-route-fechaInicio="@(fDesde)"
-                               asp-route-fechaFin="@(fHasta)"
-                               class="btn btn-sm btn-primary btn-action">Editar</a>
-
-                            <a asp-action="Details"
-                               asp-route-id="@item.Id"
-                               asp-route-fechaInicio="@(fDesde)"
-                               asp-route-fechaFin="@(fHasta)"
-                               class="btn btn-sm btn-secondary btn-action">Detalles</a>
-
-                            <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               asp-route-fechaInicio="@(fDesde)"
-                               asp-route-fechaFin="@(fHasta)"
-                               class="btn btn-sm btn-danger btn-action">Eliminar</a>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   asp-route-fechaInicio="@(fDesde)"
+                                   asp-route-fechaFin="@(fHasta)"
+                                   class="btn btn-outline-secondary">Ver</a>
+                        
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   asp-route-fechaInicio="@(fDesde)"
+                                   asp-route-fechaFin="@(fHasta)"
+                                   class="btn btn-warning text-dark">Editar</a>
+                        
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   asp-route-fechaInicio="@(fDesde)"
+                                   asp-route-fechaFin="@(fHasta)"
+                                   class="btn btn-outline-danger">Eliminar</a>
+                            </div>
                         </td>
+
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 }
+
 
 
