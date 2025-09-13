@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PuntoTres.Models.SolucionPreparada>
+@model IEnumerable<PuntoTres.Models.SolucionPreparada>
 
 @{
     ViewData["Title"] = "Stock de soluciones preparadas";
@@ -17,13 +17,11 @@
 <form asp-action="Index" method="get" class="row g-3 mb-3">
     <div class="col-auto">
         <label for="fechaInicio" class="form-label">Desde</label>
-        <input type="date" id="fechaInicio" name="fechaInicio"
-               value="@(fDesde ?? "")" class="form-control" />
+        <input type="date" id="fechaInicio" name="fechaInicio" value="@(fDesde ?? "")" class="form-control" />
     </div>
     <div class="col-auto">
         <label for="fechaFin" class="form-label">Hasta</label>
-        <input type="date" id="fechaFin" name="fechaFin"
-               value="@(fHasta ?? "")" class="form-control" />
+        <input type="date" id="fechaFin" name="fechaFin" value="@(fHasta ?? "")" class="form-control" />
     </div>
     <div class="col-auto d-flex align-items-end gap-2">
         <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -36,22 +34,15 @@
     DateTime? desde = null;
     DateTime? hasta = null;
 
-    if (!string.IsNullOrEmpty(fDesde) && DateTime.TryParse(fDesde, out var d))
-    {
-        desde = d;
-    }
-    if (!string.IsNullOrEmpty(fHasta) && DateTime.TryParse(fHasta, out var h))
-    {
-        hasta = h;
-    }
+    if (!string.IsNullOrEmpty(fDesde) && DateTime.TryParse(fDesde, out var d)) { desde = d; }
+    if (!string.IsNullOrEmpty(fHasta) && DateTime.TryParse(fHasta, out var h)) { hasta = h; }
 
     <div class="alert alert-info py-2">
         Rango aplicado:
-        <strong>Desde</strong> @(desde.HasValue? desde.Value.ToString("dd/MM/yyyy") : "—")
-        <strong>Hasta</strong> @(hasta.HasValue? hasta.Value.ToString("dd/MM/yyyy") : "—")
+        <strong>Desde</strong> @(desde?.ToString("dd/MM/yyyy") ?? "—")
+        <strong>Hasta</strong> @(hasta?.ToString("dd/MM/yyyy") ?? "—")
     </div>
 }
-
 
 @if (!(Model?.Any() ?? false))
 {
@@ -117,23 +108,20 @@ else
                                    asp-route-fechaInicio="@(fDesde)"
                                    asp-route-fechaFin="@(fHasta)"
                                    class="btn btn-outline-secondary">Ver</a>
-                        
+
                                 <a asp-action="Edit"
                                    asp-route-id="@item.Id"
                                    asp-route-fechaInicio="@(fDesde)"
                                    asp-route-fechaFin="@(fHasta)"
-                                   class="btn btn-outline-warning">Editar</a>  <!-- ← outline, no fondo permanente -->
-                        
+                                   class="btn btn-outline-warning">Editar</a>
+
                                 <a asp-action="Delete"
                                    asp-route-id="@item.Id"
                                    asp-route-fechaInicio="@(fDesde)"
                                    asp-route-fechaFin="@(fHasta)"
                                    class="btn btn-outline-danger">Eliminar</a>
                             </div>
-                            </td>
-
                         </td>
-
                     </tr>
                 }
             </tbody>
