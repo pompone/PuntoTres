@@ -23,14 +23,16 @@
 
     <div class="mb-3">
         <label asp-for="CantidadBase" class="form-label">@Html.DisplayNameFor(m => m.CantidadBase) (g/ml)</label>
-        <input asp-for="CantidadBase" class="form-control" type="number" step="0.0001" />
+        <input asp-for="CantidadBase" class="form-control" type="number" step="0.0001" lang="es-AR" />
         <span asp-validation-for="CantidadBase" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="VolumenFinal" class="form-label">@Html.DisplayNameFor(m => m.VolumenFinal) (ml)</label>
-        <input asp-for="VolumenFinal" class="form-control" type="number" step="0.01" />
+        <input asp-for="VolumenFinal" class="form-control" type="number" step="0.0001" lang="es-AR" />
         <span asp-validation-for="VolumenFinal" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="CodigoInterno" class="form-label"></label>

@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace PuntoTres.Data
 {
-    public class AppDbContext : DbContext, IDataProtectionKeyContext 
+    public class AppDbContext : DbContext, IDataProtectionKeyContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<SolucionPreparada> SolucionesPreparadas => Set<SolucionPreparada>();
 
-        //NUEVO: tabla donde EF guardará las claves
+        // Donde EF guardará las claves de Data Protection
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,8 +28,9 @@ namespace PuntoTres.Data
                 entity.Property(e => e.Fecha).HasColumnType("date");
                 entity.Property(e => e.FechaVencimiento).HasColumnType("date");
 
-                entity.Property(e => e.CantidadBase).HasPrecision(18, 2);
-                entity.Property(e => e.VolumenFinal).HasPrecision(18, 2);
+                //AHORA con 4 decimales
+                entity.Property(e => e.CantidadBase).HasPrecision(18, 4);
+                entity.Property(e => e.VolumenFinal).HasPrecision(18, 4);
             });
 
             base.OnModelCreating(modelBuilder);
