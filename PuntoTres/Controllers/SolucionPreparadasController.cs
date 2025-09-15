@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +38,7 @@ namespace PuntoTres.Controllers
             }
 
             var lista = await q
-                .OrderBy(s => s.Fecha)
+                .OrderByDescending(s => s.Fecha) // Cambio aquí: OrderByDescending en lugar de OrderBy
                 .ToListAsync();
 
             // Para repoblar los inputs <input type="date">
