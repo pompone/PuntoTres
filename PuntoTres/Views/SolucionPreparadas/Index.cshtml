@@ -92,15 +92,18 @@ else
                             {
                                 var vencida = item.FechaVencimiento.Value.Date < DateTime.Today;
                                 <span>@item.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
-                                <span class="badge @(vencida ? "text-bg-danger" : "text-bg-success") ms-1">
+                                <span class="badge rounded-pill ms-1 @(vencida
+                                         ? "bg-danger-subtle text-danger border border-danger"
+                                         : "bg-success-subtle text-success border border-success")">
                                     @(vencida ? "Vencida" : "Vigente")
                                 </span>
                             }
                             else
                             {
-                                <span class="badge text-bg-secondary">Sin fecha</span>
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary">Sin fecha</span>
                             }
                         </td>
+
                         <td class="text-center">
                             <div class="btn-group btn-group-sm" role="group">
                                 <a asp-action="Details"
@@ -128,6 +131,7 @@ else
         </table>
     </div>
 }
+
 
 
 
