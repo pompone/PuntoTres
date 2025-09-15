@@ -36,20 +36,23 @@
         <dd class="col-sm-9">@Model.IdReactivo</dd>
 
         <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FechaVencimiento)</dt>
-        <dd class="col-sm-9">
+       <dd class="col-sm-9">
             @if (Model.FechaVencimiento.HasValue)
             {
                 var vencida = Model.FechaVencimiento.Value.Date < DateTime.Today;
                 <span>@Model.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
-                <span class="badge @(vencida ? "text-bg-danger" : "text-bg-success") ms-1">
+                <span class="badge rounded-pill ms-1 @(vencida
+                         ? "bg-danger-subtle text-danger border border-danger"
+                         : "bg-success-subtle text-success border border-success")">
                     @(vencida ? "Vencida" : "Vigente")
                 </span>
             }
             else
             {
-                <span class="badge text-bg-secondary">Sin fecha</span>
+                <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary">Sin fecha</span>
             }
         </dd>
+
     </dl>
 
     <div class="mt-3">
