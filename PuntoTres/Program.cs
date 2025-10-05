@@ -4,10 +4,6 @@ using PuntoTres.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ajustes Npgsql (antes de Build)
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
-
 // MVC
 builder.Services.AddControllersWithViews();
 
@@ -15,7 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Persistir las claves de Data Protection (antiforgery) en PostgreSQL
+//Persistir las claves de Data Protection (antiforgery) en PostgreSQL
 builder.Services.AddDataProtection()
     .PersistKeysToDbContext<AppDbContext>()
     .SetApplicationName("PuntoTres");
@@ -27,14 +23,7 @@ if (app.Environment.IsProduction())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        db.Database.Migrate(); // crea/actualiza el esquema al iniciar
-    }
-    catch (Exception ex)
-    {
-        Console.Error.WriteLine("Migrate error: " + ex);
-    }
+    db.Database.Migrate(); // crea/actualiza el esquema al iniciar (incluye DataProtectionKeys)
 }
 
 if (!app.Environment.IsDevelopment())
@@ -47,10 +36,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-// app.UseAuthorization();
+// app.UseAuthorization(); 
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=SolucionesPreparadas}/{action=Index}/{id?}");
+    pattern: "{controller=SolucionPreparadas}/{action=Index}/{id?}");
 
 app.Run();
