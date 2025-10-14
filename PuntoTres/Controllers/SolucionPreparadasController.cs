@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
 using PuntoTres.Models;
+
+//  QuestPDF (para generar el PDF real)
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace PuntoTres.Controllers
 {
@@ -38,7 +44,7 @@ namespace PuntoTres.Controllers
             int totalRegistros = await q.CountAsync();
 
             var lista = await q
-                .OrderByDescending(s => s.Fecha)   // más nuevo primero
+                .OrderByDescending(s => s.Fecha)
                 .ThenByDescending(s => s.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -53,7 +59,7 @@ namespace PuntoTres.Controllers
             return View(lista);
         }
 
-        //  Exportar a PDF con el filtro aplicado
+        // Exportar a PDF con el filtro aplicado
         public async Task<IActionResult> DescargarPDF(DateTime? fechaInicio, DateTime? fechaFin)
         {
             var q = _context.SolucionesPreparadas
@@ -74,8 +80,8 @@ namespace PuntoTres.Controllers
                 .ThenByDescending(s => s.Id)
                 .ToListAsync();
 
-            // Si no usás QuestPDF todavía, podés implementar este método luego
             var pdfBytes = GenerarPdf(lista, fechaInicio, fechaFin);
+
             return File(pdfBytes, "application/pdf", "SolucionesPreparadas.pdf");
         }
 
@@ -176,28 +182,88 @@ namespace PuntoTres.Controllers
         private bool SolucionPreparadaExists(int id)
             => _context.SolucionesPreparadas.Any(e => e.Id == id);
 
-        // Método auxiliar para generar PDF (estructura base)
+        //  Método auxiliar para generar PDF con QuestPDF
         private byte[] GenerarPdf(List<SolucionPreparada> lista, DateTime? inicio, DateTime? fin)
         {
-            // En este punto podés usar QuestPDF, iTextSharp o similar
-            // Por ahora, devolvemos un PDF mínimo de prueba:
+            var desde = inicio?.ToString("dd/MM/yyyy") ?? "—";
+            var hasta = fin?.ToString("dd/MM/yyyy") ?? "—";
 
-            using var ms = new MemoryStream();
-            using (var writer = new StreamWriter(ms))
+            var document = Document.Create(container =>
             {
-                writer.WriteLine($"Soluciones preparadas del {inicio:dd/MM/yyyy} al {fin:dd/MM/yyyy}");
-                writer.WriteLine("------------------------------------------------");
-                foreach (var s in lista)
+                container.Page(page =>
                 {
-                    writer.WriteLine($"{s.Fecha:dd/MM/yyyy} - {s.Nombre} ({s.Lote})");
-                }
-                writer.Flush();
-            }
+                    page.Size(PageSizes.A4);
+                    page.Margin(40);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(10));
 
-            // Retornar un pseudo-PDF (texto plano por ahora)
-            return ms.ToArray();
+                    // Encabezado
+                    page.Header()
+                        .Text("Informe de soluciones preparadas")
+                        .FontSize(16)
+                        .SemiBold()
+                        .FontColor(Colors.Blue.Darken2)
+                        .AlignCenter();
+
+                    // Contenido
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Text($"Rango aplicado: {desde} - {hasta}")
+                            .FontSize(11)
+                            .FontColor(Colors.Grey.Darken2)
+                            .PaddingBottom(8);
+
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1); // Fecha
+                                columns.RelativeColumn(2); // Nombre
+                                columns.RelativeColumn(1); // Lote
+                                columns.RelativeColumn(1); // Volumen
+                                columns.RelativeColumn(1); // Concentración
+                            });
+
+                            // Encabezado de tabla
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("Fecha").SemiBold();
+                                header.Cell().Element(CellStyle).Text("Nombre").SemiBold();
+                                header.Cell().Element(CellStyle).Text("Lote").SemiBold();
+                                header.Cell().Element(CellStyle).Text("Volumen (ml)").SemiBold();
+                                header.Cell().Element(CellStyle).Text("Conc. obtenida").SemiBold();
+                            });
+
+                            // Filas de datos
+                            foreach (var s in lista)
+                            {
+                                table.Cell().Element(CellStyle).Text(s.Fecha.ToString("dd/MM/yyyy"));
+                                table.Cell().Element(CellStyle).Text(s.Nombre ?? "");
+                                table.Cell().Element(CellStyle).Text(s.Lote ?? "");
+                                table.Cell().Element(CellStyle).Text($"{s.VolumenFinal:0.##}");
+                                table.Cell().Element(CellStyle).Text($"{s.ConcentracionObtenida}");
+                            }
+
+                            static IContainer CellStyle(IContainer container) =>
+                                container.BorderBottom(0.5f)
+                                         .BorderColor(Colors.Grey.Lighten2)
+                                         .PaddingVertical(4)
+                                         .PaddingHorizontal(3);
+                        });
+                    });
+
+                    // Pie de página
+                    page.Footer()
+                        .AlignRight()
+                        .Text($"Generado el {DateTime.Now:dd/MM/yyyy HH:mm}")
+                        .FontSize(9);
+                });
+            });
+
+            return document.GeneratePdf();
         }
     }
 }
+
 
 
