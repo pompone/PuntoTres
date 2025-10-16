@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
 using PuntoTres.Models;
+using PuntoTres.Utils;
 
 namespace PuntoTres.Controllers
 {
@@ -18,8 +19,8 @@ namespace PuntoTres.Controllers
         }
 
         // GET: SolucionPreparadas
-        [HttpGet]
-        public async Task<IActionResult> Index(DateTime? fechaInicio, DateTime? fechaFin)
+        // /SolucionPreparadas?fechaInicio=2025-09-01&fechaFin=2025-09-30&pagina=1&tamanio=10
+        public async Task<IActionResult> Index(DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
         {
             var q = _context.SolucionesPreparadas
                 .AsNoTracking()
@@ -35,14 +36,18 @@ namespace PuntoTres.Controllers
                 q = q.Where(s => s.Fecha < finExclusivo);
             }
 
-            var lista = await q
-                .OrderByDescending(s => s.Fecha)   // más nuevo primero
-                .ThenByDescending(s => s.Id)       // desempate
-                .ToListAsync();
+            // Paginación (orden estable por Fecha desc, luego Id desc)
+            var lista = await PaginatedList<SolucionPreparada>.CreateAsync(
+                q.OrderByDescending(s => s.Fecha).ThenByDescending(s => s.Id),
+                pagina,
+                tamanio
+            );
 
-            // Para repoblar los inputs <input type="date">
+            // Para repoblar los inputs <input type="date"> y conservar parámetros en los links
             ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
             ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+            ViewData["Tamanio"]     = tamanio;
+            ViewData["Pagina"]      = pagina;
 
             return View(lista);
         }
@@ -53,35 +58,52 @@ namespace PuntoTres.Controllers
             if (id == null) return NotFound();
 
             var solucionPreparada = await _context.SolucionesPreparadas
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (solucionPreparada == null) return NotFound();
 
             return View(solucionPreparada);
         }
 
         // GET: SolucionPreparadas/Create
-        public IActionResult Create() => View();
+        public IActionResult Create(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            // Guardamos rango para volver con RedirectToAction después del POST
+            ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+            return View();
+        }
 
         // POST: SolucionPreparadas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Fecha,CodigoInterno,Marca,Nombre,CantidadBase,VolumenFinal,Lote,ConcentracionObtenida,IdReactivo,FechaVencimiento")] SolucionPreparada solucionPreparada)
+        public async Task<IActionResult> Create(SolucionPreparada solucionPreparada, DateTime? fechaInicio, DateTime? fechaFin)
         {
-            if (!ModelState.IsValid) return View(solucionPreparada);
+            if (!ModelState.IsValid)
+            {
+                ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
+                ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+                return View(solucionPreparada);
+            }
 
             _context.Add(solucionPreparada);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin });
         }
 
         // GET: SolucionPreparadas/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
         {
             if (id == null) return NotFound();
 
             var solucionPreparada = await _context.SolucionesPreparadas.FindAsync(id);
             if (solucionPreparada == null) return NotFound();
+
+            ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+            ViewData["Tamanio"]     = tamanio;
+            ViewData["Pagina"]      = pagina;
 
             return View(solucionPreparada);
         }
@@ -89,10 +111,18 @@ namespace PuntoTres.Controllers
         // POST: SolucionPreparadas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,CodigoInterno,Marca,Nombre,CantidadBase,VolumenFinal,Lote,ConcentracionObtenida,IdReactivo,FechaVencimiento")] SolucionPreparada solucionPreparada)
+        public async Task<IActionResult> Edit(int id, SolucionPreparada solucionPreparada, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
         {
             if (id != solucionPreparada.Id) return NotFound();
-            if (!ModelState.IsValid) return View(solucionPreparada);
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
+                ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+                ViewData["Tamanio"]     = tamanio;
+                ViewData["Pagina"]      = pagina;
+                return View(solucionPreparada);
+            }
 
             try
             {
@@ -101,14 +131,17 @@ namespace PuntoTres.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SolucionPreparadaExists(solucionPreparada.Id)) return NotFound();
-                throw;
+                if (!SolucionPreparadaExists(solucionPreparada.Id))
+                    return NotFound();
+                else
+                    throw;
             }
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin, pagina, tamanio });
         }
 
         // GET: SolucionPreparadas/Delete/5
-        public async Task<IActionResult> Delete(int? id, DateTime? fechaInicio, DateTime? fechaFin)
+        public async Task<IActionResult> Delete(int? id, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
         {
             if (id == null) return NotFound();
 
@@ -118,9 +151,10 @@ namespace PuntoTres.Controllers
 
             if (solucionPreparada == null) return NotFound();
 
-            // Guardar rango para devolverlo luego
             ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
             ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
+            ViewData["Tamanio"]     = tamanio;
+            ViewData["Pagina"]      = pagina;
 
             return View(solucionPreparada);
         }
@@ -128,23 +162,25 @@ namespace PuntoTres.Controllers
         // POST: SolucionPreparadas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, DateTime? fechaInicio, DateTime? fechaFin)
+        public async Task<IActionResult> DeleteConfirmed(int id, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
         {
-            var sp = await _context.SolucionesPreparadas.FindAsync(id);
-            if (sp != null)
+            var solucionPreparada = await _context.SolucionesPreparadas.FindAsync(id);
+            if (solucionPreparada != null)
             {
-                _context.SolucionesPreparadas.Remove(sp);
+                _context.SolucionesPreparadas.Remove(solucionPreparada);
                 await _context.SaveChangesAsync();
             }
 
-            // Volver al Index conservando el rango (si la vista lo envía)
-            return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin });
+            // Volver al Index conservando filtros y página
+            return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin, pagina, tamanio });
         }
 
         private bool SolucionPreparadaExists(int id)
             => _context.SolucionesPreparadas.Any(e => e.Id == id);
     }
 }
+
+
 
 
 
