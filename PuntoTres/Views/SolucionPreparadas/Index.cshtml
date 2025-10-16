@@ -142,48 +142,48 @@ else
     </div>
 
     <!-- Pie de paginación  -->
-<div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3 flex-wrap gap-2">
-    <div class="text-muted">
-        (@Model.PageIndex / @Model.TotalPages)
-    </div>
+    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3 flex-wrap gap-2">
+        <div class="text-muted">(@Model.PageIndex / @Model.TotalPages)</div>
 
-    <nav aria-label="Paginación">
-        <ul class="pagination mb-0">
-            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-pagina="1"
-                   asp-route-tamanio="@(tamanio)"
-                   asp-route-fechaInicio="@(fDesde)"
-                   asp-route-fechaFin="@(fHasta)">« Primero</a>
-            </li>
-            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-pagina="@(Model.PageIndex - 1)"
-                   asp-route-tamanio="@(tamanio)"
-                   asp-route-fechaInicio="@(fDesde)"
-                   asp-route-fechaFin="@(fHasta)">‹ Anterior</a>
-            </li>
-            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-pagina="@(Model.PageIndex + 1)"
-                   asp-route_tamanio="@(tamanio)"
-                   asp-route-fechaInicio="@(fDesde)"
-                   asp-route-fechaFin="@(fHasta)">Siguiente ›</a>
-            </li>
-            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-pagina="@Model.TotalPages"
-                   asp-route-tamanio="@(tamanio)"
-                   asp-route-fechaInicio="@(fDesde)"
-                   asp-route-fechaFin="@(fHasta)">Último »</a>
-            </li>
-        </ul>
-    </nav>
-</div>
+        <nav aria-label="Paginación">
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="1"
+                       asp-route-tamanio="@(tamanio)"
+                       asp-route-fechaInicio="@(fDesde)"
+                       asp-route-fechaFin="@(fHasta)">« Primero</a>
+                </li>
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="@(Model.PageIndex - 1)"
+                       asp-route-tamanio="@(tamanio)"
+                       asp-route-fechaInicio="@(fDesde)"
+                       asp-route-fechaFin="@(fHasta)">‹ Anterior</a>
+                </li>
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="@(Model.PageIndex + 1)"
+                       asp-route-tamanio="@(tamanio)"
+                       asp-route-fechaInicio="@(fDesde)"
+                       asp-route-fechaFin="@(fHasta)">Siguiente ›</a>
+                </li>
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="@Model.TotalPages"
+                       asp-route-tamanio="@(tamanio)"
+                       asp-route-fechaInicio="@(fDesde)"
+                       asp-route-fechaFin="@(fHasta)">Último »</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+} 
+
 
 
 
