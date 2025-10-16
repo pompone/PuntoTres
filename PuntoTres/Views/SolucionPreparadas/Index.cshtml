@@ -6,7 +6,7 @@
     var fHasta  = Convert.ToString(ViewData["fechaFin"]);
     var hayFiltro = !string.IsNullOrEmpty(fDesde) || !string.IsNullOrEmpty(fHasta);
 
-    // Pagina y tamaño (por si querés usarlos en los links)
+    // Página y tamaño (para preservar en los links)
     var pagina  = Convert.ToInt32(ViewData["Pagina"]  ?? 1);
     var tamanio = Convert.ToInt32(ViewData["Tamanio"] ?? 10);
 }
@@ -65,16 +65,16 @@ else
         <table class="table table-striped table-bordered align-middle" style="min-width: 1200px;">
             <thead class="table-light">
                 <tr>
-                    <th>@Html.DisplayNameFor(m => m.Fecha)</th>
-                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                    <th>@Html.DisplayNameFor(m => m.CantidadBase) (g/ml)</th>
-                    <th>@Html.DisplayNameFor(m => m.VolumenFinal) (ml)</th>
-                    <th>@Html.DisplayNameFor(m => m.CodigoInterno)</th>
-                    <th>@Html.DisplayNameFor(m => m.Lote)</th>
-                    <th>@Html.DisplayNameFor(m => m.Marca)</th>
-                    <th>@Html.DisplayNameFor(m => m.ConcentracionObtenida)</th>
-                    <th>@Html.DisplayNameFor(m => m.IdReactivo)</th>
-                    <th>@Html.DisplayNameFor(m => m.FechaVencimiento)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].Fecha)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].Nombre)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].CantidadBase) (g/ml)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].VolumenFinal) (ml)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].CodigoInterno)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].Lote)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].Marca)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].ConcentracionObtenida)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].IdReactivo)</th>
+                    <th>@Html.DisplayNameFor(m => m[0].FechaVencimiento)</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -161,6 +161,7 @@ else
         </div>
     </div>
 }
+
 
 
 
