@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
 using PuntoTres.Models;
 using PuntoTres.Utils;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace PuntoTres.Controllers
 {
@@ -139,41 +141,36 @@ namespace PuntoTres.Controllers
 
             return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin, pagina, tamanio });
         }
-
         // GET: SolucionPreparadas/Delete/5
-        public async Task<IActionResult> Delete(int? id, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
+        [Authorize(Policy = "Reactivos.Delete")]
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var solucionPreparada = await _context.SolucionesPreparadas
+            var item = await _context.SolucionesPreparadas
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (solucionPreparada == null) return NotFound();
+            if (item == null) return NotFound();
 
-            ViewData["fechaInicio"] = fechaInicio?.ToString("yyyy-MM-dd");
-            ViewData["fechaFin"]    = fechaFin?.ToString("yyyy-MM-dd");
-            ViewData["Tamanio"]     = tamanio;
-            ViewData["Pagina"]      = pagina;
-
-            return View(solucionPreparada);
+            return View(item); // muestra la vista de confirmación
         }
 
         // POST: SolucionPreparadas/Delete/5
+        [Authorize(Policy = "Reactivos.Delete")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1, int tamanio = 10)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var solucionPreparada = await _context.SolucionesPreparadas.FindAsync(id);
-            if (solucionPreparada != null)
-            {
-                _context.SolucionesPreparadas.Remove(solucionPreparada);
-                await _context.SaveChangesAsync();
-            }
+            var item = await _context.SolucionesPreparadas.FindAsync(id);
+            if (item == null) return NotFound();
 
-            // Volver al Index conservando filtros y página
-            return RedirectToAction(nameof(Index), new { fechaInicio, fechaFin, pagina, tamanio });
+            _context.SolucionesPreparadas.Remove(item);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         private bool SolucionPreparadaExists(int id)
             => _context.SolucionesPreparadas.Any(e => e.Id == id);

@@ -1,0 +1,217 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<!-- ====== Fondo dinámico + overlay ====== -->
+<style>
+    /* Evitar scroll en la página de login */
+    body.auth-body {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    html {
+        height: 100%;
+    }
+
+    .login-bg {
+        position: fixed;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transition: background-image .6s ease;
+        filter: brightness(.95);
+        z-index: -1;
+    }
+
+    .login-overlay {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(ellipse at center, rgba(255,255,255,.55) 0%, rgba(255,255,255,.35) 40%, rgba(255,255,255,.15) 100%);
+        z-index: 0;
+    }
+
+    /* Wrapper + tarjeta */
+    .auth-wrapper {
+        min-height: 100dvh; /* ocupa alto real del viewport */
+        display: grid;
+        place-items: center;
+        padding: 16px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        border: 0;
+        border-radius: 1rem;
+        background: rgba(255,255,255,0.92);
+        box-shadow: 0 12px 32px rgba(0,0,0,.25);
+        backdrop-filter: blur(4px);
+        margin: 0; /* sin márgenes extra que generen scroll */
+    }
+
+    /* Texto de ayuda “transparente” (debajo de la tarjeta) */
+    .auth-help {
+        position: fixed; /* pegado abajo al centro */
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        max-width: min(640px, 92vw);
+        padding: 10px 16px;
+        text-align: center;
+        font-size: .95rem;
+        line-height: 1.35;
+        color: #fff; /* texto claro */
+        background: rgba(0,0,0,.38); /* pastilla oscura */
+        border-radius: 16px;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        box-shadow: 0 6px 18px rgba(0,0,0,.25);
+        z-index: 1; /* encima del overlay */
+        opacity: .97;
+    }
+
+        .auth-help a {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            opacity: .95;
+        }
+
+        .auth-help:hover {
+            opacity: 1;
+        }
+
+    /* responsive */
+    @@media (max-width: 576px) {
+        .auth-help {
+            font-size: .9rem;
+            padding: 8px 12px;
+            bottom: 12px;
+            border-radius: 14px;
+        }
+    }
+</style>
+
+<div id="loginBg" class="login-bg"></div>
+<div class="login-overlay"></div>
+
+<!-- ====== Contenido ====== -->
+<div class="auth-wrapper">
+    <div class="card auth-card">
+        <div class="card-body p-4">
+            <!-- Encabezado -->
+            <h2 class="text-center fw-bold mb-2 text-primary">🔒 Iniciar sesión</h2>
+            <p class="text-center text-muted mb-4">Ingresá con tu usuario y contraseña</p>
+
+            <!-- Formulario -->
+            <form id="account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <!-- Usuario -->
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.UserName"
+                           class="form-control rounded-3"
+                           autocomplete="username"
+                           placeholder="Usuario"
+                           aria-required="true" />
+                    <label asp-for="Input.UserName">Usuario</label>
+                    <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password"
+                           class="form-control rounded-3"
+                           type="password"
+                           autocomplete="current-password"
+                           placeholder="Contraseña"
+                           aria-required="true" />
+                    <label asp-for="Input.Password">Contraseña</label>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <!-- Recordarme -->
+                <div class="form-check mb-3">
+                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                    <label asp-for="Input.RememberMe" class="form-check-label">Recordarme</label>
+                </div>
+
+                <!-- Botón -->
+                <button id="login-submit" type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Soporte (debajo de la tarjeta) -->
+    <div class="auth-help">
+        ¿Consultas o dudas?
+        <a href="mailto:apompone@salud.rionegro.gov.ar">apompone@salud.rionegro.gov.ar</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const bg = document.getElementById('loginBg');
+
+        function aplicar(url) { bg.style.backgroundImage = `url('${url}')`; }
+        function preload(arr) { arr.forEach(src => { const i = new Image(); i.src = src; }); }
+        function probar(url) {
+          return new Promise(res => {
+            const img = new Image();
+            img.onload = () => res(url);
+            img.onerror = () => res(null);
+            img.src = url;
+          });
+        }
+        function shuffle(a) {
+          for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+          }
+          return a;
+        }
+
+        // SOLO GDE: arma un carrusel con las imágenes de semana_1..semana_23 que realmente cargan
+        async function iniciarFondosGDE() {
+          const base = 'https://cas.gde.rionegro.gov.ar/src/img/fondo/semana_';
+          const indices = shuffle(Array.from({ length: 23 }, (_, i) => i + 1));
+          const disponibles = [];
+
+          // Probar hasta reunir algunas (p. ej., 6) o terminar la lista
+          for (const n of indices) {
+            const ok = await probar(`${base}${n}.jpg`);
+            if (ok) {
+              disponibles.push(ok);
+              if (disponibles.length >= 6) break;
+            }
+          }
+
+          if (disponibles.length > 0) {
+            preload(disponibles);
+            let i = 0;
+            aplicar(disponibles[0]);
+            setInterval(() => {
+              i = (i + 1) % disponibles.length;
+              aplicar(disponibles[i]);
+            }, 8000);
+          } else {
+            // Si no se pudo cargar ninguna, usar un fondo neutro (sin imágenes locales)
+            bg.style.background = 'linear-gradient(135deg, #cfe8ff, #ffffff)';
+          }
+        }
+
+        // Agregar clase al body para evitar scroll en esta página
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('auth-body');
+          iniciarFondosGDE();
+        });
+    </script>
+}
+
