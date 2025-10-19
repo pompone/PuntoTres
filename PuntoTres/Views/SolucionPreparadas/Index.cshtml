@@ -2,19 +2,39 @@
 
 @{
     ViewData["Title"] = "Stock de soluciones preparadas";
-    var fDesde  = Convert.ToString(ViewData["fechaInicio"]);
-    var fHasta  = Convert.ToString(ViewData["fechaFin"]);
+    var fDesde = Convert.ToString(ViewData["fechaInicio"]);
+    var fHasta = Convert.ToString(ViewData["fechaFin"]);
     var hayFiltro = !string.IsNullOrEmpty(fDesde) || !string.IsNullOrEmpty(fHasta);
 
     // Página y tamaño (para preservar en los links)
-    var pagina  = Convert.ToInt32(ViewData["Pagina"]  ?? 1);
+    var pagina = Convert.ToInt32(ViewData["Pagina"] ?? 1);
     var tamanio = Convert.ToInt32(ViewData["Tamanio"] ?? 10);
 }
 
-<!-- Encabezado con botón a la derecha -->
+<!-- Estilos locales -->
+<style>
+    /* Deja "Eliminar" grisado cuando está deshabilitado (LABO) */
+    .btn-outline-danger.disabled,
+    .btn-outline-danger:disabled {
+        color: var(--bs-secondary-color) !important;
+        border-color: var(--bs-secondary-border-subtle) !important;
+        background-color: transparent !important;
+        opacity: 1 !important; /* que no quede lavado */
+        cursor: not-allowed !important;
+    }
+    /* Evita que el span wrapper de tooltip se rompa en el btn-group */
+    .btn-group .d-inline-block[role="button"] {
+        vertical-align: middle;
+    }
+</style>
+
+<!-- Encabezado: título a la izquierda, botón a la derecha -->
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h1 class="h3 mb-0">Stock de soluciones preparadas</h1>
-    <a asp-action="Create" class="btn btn-success">Nueva solución</a>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+        Nueva solución
+    </a>
 </div>
 
 <!-- Filtro por fecha -->
@@ -87,7 +107,7 @@ else
                         <td>@item.CantidadBase?.ToString("0.####")</td>
                         <td>@item.VolumenFinal.ToString("0.####")</td>
                         <td>@item.CodigoInterno</td>
-                        <td>@item.Lote</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Lote) ? "-" : item.Lote)</td>
                         <td>@item.Marca</td>
                         <td>@item.ConcentracionObtenida</td>
                         <td>@item.IdReactivo</td>
@@ -97,11 +117,11 @@ else
                                 var vencida = item.FechaVencimiento.Value.Date < DateTime.Today;
                                 <span>@item.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
                                 <span class="badge rounded-pill ms-1 @(vencida
-                                         ? "bg-danger-subtle text-danger border border-danger"
-                                         : "bg-success-subtle text-success border border-success")">
-                                    @(vencida ? "Vencida" : "Vigente")
-                                </span>
-                            }
+                                                                          ? "bg-danger-subtle text-danger border border-danger"
+                                                                          : "bg-success-subtle text-success border border-success")">
+                        @(vencida ? "Vencida" : "Vigente")
+                    </span>
+                                        }
                             else
                             {
                                 <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary">Sin fecha</span>
@@ -116,7 +136,7 @@ else
                                    asp-route-fechaFin="@(fHasta)"
                                    asp-route-pagina="@(pagina)"
                                    asp-route-tamanio="@(tamanio)"
-                                   class="btn btn-outline-secondary">Ver</a>
+                                   class="btn btn-sm btn-outline-secondary fw-normal">Ver</a>
 
                                 <a asp-action="Edit"
                                    asp-route-id="@item.Id"
@@ -124,24 +144,38 @@ else
                                    asp-route-fechaFin="@(fHasta)"
                                    asp-route-pagina="@(pagina)"
                                    asp-route-tamanio="@(tamanio)"
-                                   class="btn btn-outline-warning">Editar</a>
+                                   class="btn btn-sm btn-outline-warning fw-normal">Editar</a>
 
-                                <a asp-action="Delete"
-                                   asp-route-id="@item.Id"
-                                   asp-route-fechaInicio="@(fDesde)"
-                                   asp-route-fechaFin="@(fHasta)"
-                                   asp-route-pagina="@(pagina)"
-                                   asp-route-tamanio="@(tamanio)"
-                                   class="btn btn-outline-danger">Eliminar</a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.Id"
+                                       asp-route-fechaInicio="@(fDesde)"
+                                       asp-route-fechaFin="@(fHasta)"
+                                       asp-route-pagina="@(pagina)"
+                                       asp-route-tamanio="@(tamanio)"
+                                       class="btn btn-sm btn-outline-danger fw-normal">Eliminar</a>
+                                }
+                                else
+                                {
+                                    <!-- Wrapper para permitir tooltip en elemento deshabilitado -->
+                                    <span class="d-inline-block" tabindex="0"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="Solo ADMIN puede eliminar">
+                                        <a class="btn btn-sm btn-outline-danger disabled fw-normal"
+                                           role="button" aria-disabled="true" tabindex="-1">Eliminar</a>
+                                    </span>
+                                }
                             </div>
                         </td>
+
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 
-    <!-- Pie de paginación ) -->
+    <!-- Pie de paginación -->
     <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3 flex-wrap gap-2">
         <div class="text-muted">Página <strong>@Model.PageIndex</strong> de <strong>@Model.TotalPages</strong></div>
 
@@ -182,7 +216,19 @@ else
             </ul>
         </nav>
     </div>
-} 
+}
+
+@section Scripts {
+    <script>
+        // Inicializa tooltips (incluye el wrapper del botón "Eliminar" deshabilitado)
+        document.addEventListener('DOMContentLoaded', function () {
+            var tts = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tts.forEach(function (el) { new bootstrap.Tooltip(el); });
+        });
+    </script>
+}
+
+
 
 
 

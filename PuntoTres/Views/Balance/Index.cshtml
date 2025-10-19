@@ -1,0 +1,104 @@
+﻿@model PuntoTres.Models.BalanceFiltroVM
+@{
+    ViewData["Title"] = "Balance de uso por reactivo";
+    var ar = new System.Globalization.CultureInfo("es-AR"); // ← para coma decimal
+}
+
+<h2 class="mt-2 mb-3">Balance de uso por reactivo</h2>
+<style>
+    /* Alto consistente para los labels y el espacio de validación */
+    .form-label {
+        min-height: 1.25rem;
+        display: block;
+        margin-bottom: .25rem;
+    }
+
+    .val-holder {
+        min-height: 1.25rem;
+        display: block;
+    }
+        /* Cuando el span está vacío, meté un no-break space para que no colapse */
+        .val-holder:empty::before {
+            content: "\00a0";
+        }
+</style>
+
+<form method="get" class="row g-3">
+    <div class="col-12 col-sm-4">
+        <label asp-for="Desde" class="form-label"></label>
+        <input asp-for="Desde" class="form-control" type="date" />
+        <span asp-validation-for="Desde" class="text-danger val-holder"></span>
+    </div>
+
+    <div class="col-12 col-sm-4">
+        <label asp-for="Hasta" class="form-label"></label>
+        <input asp-for="Hasta" class="form-control" type="date" />
+        <span asp-validation-for="Hasta" class="text-danger val-holder"></span>
+    </div>
+
+    <div class="col-12 col-sm-4">
+        <label asp-for="CodigoInterno" class="form-label text-nowrap">Código interno</label>
+        <input asp-for="CodigoInterno" class="form-control" placeholder="Ej: E22" />
+        <span asp-validation-for="CodigoInterno" class="text-danger val-holder"></span>
+    </div>
+
+    <div class="col-12 d-flex align-items-center gap-2">
+        <button type="submit" class="btn btn-primary">Calcular</button>
+        @if (!string.IsNullOrWhiteSpace(Model?.CodigoInterno))
+        {
+            <a class="btn btn-outline-secondary"
+               asp-action="ExportCsv"
+               asp-route-desde="@Model.Desde?.ToString("yyyy-MM-dd")"
+               asp-route-hasta="@Model.Hasta?.ToString("yyyy-MM-dd")"
+               asp-route-codigoInterno="@Model.CodigoInterno">
+                Descargar detalle (CSV)
+            </a>
+        }
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model?.CodigoInterno))
+{
+    <hr class="my-4" />
+
+    @* Resumen del rango aplicado *@
+    <div class="alert alert-light border d-flex flex-wrap align-items-center gap-3" role="alert">
+        <div>
+            <span class="text-muted small d-block">Código interno</span>
+            <span class="badge rounded-pill bg-secondary fs-6">@Model.CodigoInterno</span>
+        </div>
+        <div class="vr"></div>
+        <div>
+            <span class="text-muted small d-block">Rango aplicado</span>
+            <span class="fw-semibold">
+                @Model.Desde?.ToString("dd/MM/yyyy") – @Model.Hasta?.ToString("dd/MM/yyyy")
+            </span>
+        </div>
+    </div>
+
+    <div class="row gy-3">
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-muted small">Registros encontrados</div>
+                    <div class="fs-4 fw-semibold">@Model.Registros</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-muted small">Total usado (g/ml)</div>
+                    <div class="fs-4 fw-semibold">
+                        @Model.TotalUsado.ToString("0.####", ar) @* ← hasta 4 decimales *@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -24,3 +24,127 @@ body {
 .btn-action {
     min-width: 90px; /* ajustá el ancho fijo */
 }
+body {
+    font-family: "Segoe UI", sans-serif;
+}
+
+.card {
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.btn-primary {
+    background-color: #0078d7;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #005fa3;
+    }
+
+/* ====== AUTH (login/register) ====== */
+.auth-body {
+    background-image: url("/img/stars.jpg"); /* cambiá la ruta si usás otra */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; /* si querés menos recorte: contain + background-color */
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.15); /* leve velo sobre el fondo */
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border: 0;
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 12px 32px rgba(0,0,0,.25);
+    backdrop-filter: blur(2px);
+}
+
+.auth-title {
+    font-weight: 800;
+}
+
+.auth-help {
+    font-size: .95rem;
+    text-align: center;
+    margin-top: .75rem;
+    color: #000;
+    opacity: .6; /* “transparente” estilo GDE */
+}
+
+    .auth-help a {
+        color: inherit;
+        text-decoration: underline;
+        opacity: .85;
+    }
+/* ====== AUTH (login/register) ====== */
+.auth-body {
+    background-image: url("/img/stars.jpg"); /* cambiá la ruta si usás otra */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; /* si lo ves muy “grande”, usá: contain + background-color */
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.15); /* leve velo */
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border: 0;
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 12px 32px rgba(0,0,0,.25);
+    backdrop-filter: blur(2px);
+}
+
+.auth-title {
+    font-weight: 800;
+}
+
+.auth-help {
+    font-size: .95rem;
+    text-align: center;
+    margin-top: .75rem;
+    color: #000;
+    opacity: .6; /* “transparente” estilo GDE */
+}
+
+    .auth-help a {
+        color: inherit;
+        text-decoration: underline;
+        opacity: .85;
+    }
+
+/* Uniformar altura/espaciado en botones del grupo */
+.btn-group-sm .btn,
+.btn.btn-sm {
+    line-height: 1.25;
+}
+
+/* Tooltip en wrapper no empuje layout */
+.btn-group .d-inline-block[tabindex="0"] {
+    vertical-align: middle;
+}
+
+/* Evitar glow distinto al hacer foco con teclado/ratón */
+.btn:focus {
+    box-shadow: none;
+}

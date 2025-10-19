@@ -1,0 +1,38 @@
+﻿@{
+    bool logged = User?.Identity?.IsAuthenticated ?? false;
+
+    string roleLabel = "USUARIO";
+    if (User?.IsInRole("Admin") ?? false) roleLabel = "ADMIN";
+    else if (User?.IsInRole("Labo") ?? false) roleLabel = "LABO";
+
+    string badgeClass = roleLabel == "ADMIN" ? "bg-danger"
+                     : roleLabel == "LABO" ? "bg-secondary"
+                     : "bg-dark";
+    string userName = User?.Identity?.Name ?? "Cuenta";
+}
+
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (logged)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="badge rounded-pill @badgeClass">@roleLabel</span>
+                <span class="fw-semibold">@userName</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li>
+                    <form class="px-3 py-1" asp-area="Identity" asp-page="/Account/Logout"
+                          asp-route-returnUrl="~/" method="post">
+                        <button type="submit" class="btn btn-outline-danger w-100">Cerrar sesión</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a></li>
+        <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Registrarse</a></li>
+    }
+</ul>

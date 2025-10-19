@@ -1,6 +1,208 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+    ViewData["Title"] = "Política de Privacidad y Condiciones de Uso";
 
-<p>Use this page to detail your site's privacy policy.</p>
+    var fechaVersion = "18/10/2025";
+    var organismo = "Ministerio de Salud de Río Negro";
+    var direccion = "Laboratorio / Área Fisicoquimica";
+    var contactoMail = "apompone@salud.rionegro.gov.ar";
+}
+
+<!-- ===== Fondo en gradiente + tarjeta ===== -->
+<style>
+    :root {
+        /* Colores suaves del fondo */
+        --g1: #e3f2fd; /* celeste muy claro */
+        --g2: #e8f5e9; /* verde muy claro */
+        --g3: #fff3e0; /* naranja muy claro */
+    }
+
+    .policy-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background: linear-gradient(135deg, var(--g1), var(--g2), var(--g3));
+        background-size: 400% 400%;
+        animation: bgShift 24s ease infinite;
+        filter: brightness(.98);
+    }
+
+    /* IMPORTANTE: en Razor, usá @@ para renderizar  en CSS */
+    @@keyframes bgShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .policy-card {
+        background: rgba(255,255,255,.92);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 1rem;
+        box-shadow: 0 12px 30px rgba(0,0,0,.15);
+        /* padding fluido sin media */
+        padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+    }
+
+        .policy-card h4 {
+            margin-top: 1.5rem;
+        }
+</style>
+
+<div class="policy-bg"></div>
+
+<div class="container my-4">
+    <div class="policy-card">
+        <h2 class="mb-2">Política de Privacidad y Condiciones de Uso</h2>
+        <p class="text-muted">Versión: @fechaVersion</p>
+
+        <p>
+            Esta política explica cómo <strong>Esta Aplicación</strong> trata los datos personales y operativos,
+            y establece las obligaciones de las personas usuarias del sistema. El uso de la aplicación
+            implica la aceptación de estas condiciones.
+        </p>
+
+        <h4>1) Responsable del tratamiento</h4>
+        <p class="mb-1">Organismo: <strong>@organismo</strong></p>
+        <p class="mb-1">Área responsable: <strong>@direccion</strong></p>
+        <p>Contacto: <a href="mailto:@contactoMail">@contactoMail</a></p>
+
+        <h4>2) Finalidades del sistema</h4>
+        <ul>
+            <li>Registrar, gestionar y auditar <strong>soluciones preparadas</strong> y el uso de <strong>reactivos</strong>.</li>
+            <li>Generar reportes operativos, balances y trazabilidad para fines técnicos y legales.</li>
+            <li>Mejorar la calidad, seguridad y continuidad de la operatoria del laboratorio.</li>
+        </ul>
+
+        <h4>3) Datos tratados</h4>
+        <ul>
+            <li>Datos de acceso: usuario, rol (Admin/Labo), registros de inicio/cierre de sesión.</li>
+            <li>Datos operativos: fechas, código interno, cantidades, lotes, concentraciones, vencimientos.</li>
+            <li>Metadatos técnicos mínimos (IP, agente de usuario) para seguridad y auditoría.</li>
+        </ul>
+
+        <h4>4) Base legal</h4>
+        <p>
+            El tratamiento se realiza conforme a la <strong>Ley 25.326</strong> y normativa aplicable,
+            basado en interés público/obligación legal del organismo y en el cumplimiento de funciones propias.
+        </p>
+
+        <h4>5) Destinatarios y transferencias</h4>
+        <p>
+            Acceden los perfiles autorizados del organismo y proveedores tecnológicos necesarios para la prestación
+            (alojamiento y base de datos). No se ceden datos a terceros con fines comerciales.
+        </p>
+
+        <h4>6) Conservación</h4>
+        <p>
+            Los datos se conservan por el tiempo necesario para cumplir las finalidades y las obligaciones normativas
+            (auditoría, archivo y defensa legal). Vencidos dichos plazos, se aplicarán medidas de anonimización o eliminación segura.
+        </p>
+
+        <h4>7) Seguridad</h4>
+        <ul>
+            <li>Control de acceso por <strong>usuario y rol</strong> (Admin/Labo).</li>
+            <li>Canales cifrados (HTTPS) y protección de sesión.</li>
+            <li>Persistencia de claves criptográficas para mantener sesiones válidas en reinicios del servicio.</li>
+            <li>Registro de eventos relevantes para auditoría y detección de incidentes.</li>
+        </ul>
+
+        <h4>8) Derechos de las personas</h4>
+        <p>
+            Podés ejercer los derechos de <strong>acceso, rectificación y actualización</strong> ante el responsable.
+            La <em>Agencia de Acceso a la Información Pública</em> (AAIP) es autoridad de control en Argentina.
+        </p>
+
+        <h4>9) Cookies</h4>
+        <p>
+            Se utilizan únicamente <strong>cookies técnicas</strong> necesarias para autenticación y protección antifraude.
+            No se emplean cookies con fines publicitarios.
+        </p>
+
+        <h4>10) Créditos y derechos de imágenes</h4>
+        <p class="mb-0">
+            Las imágenes de fondo empleadas en la pantalla de inicio de sesión provienen del
+            <strong>Gestión Documental Electrónica (GDE)</strong>. Los derechos de autor y créditos
+            corresponden al <strong>Ministerio de Modernización</strong>.
+        </p>
+
+        <hr class="my-4" />
+
+        <h3 class="mb-2">Condiciones y obligaciones de uso</h3>
+
+        <h4>11) Usuarios y responsabilidades</h4>
+        <ul>
+            <li>La cuenta es <strong>personal e intransferible</strong>. Mantené tu contraseña en reserva.</li>
+            <li>Sos responsable por las operaciones realizadas con tu usuario.</li>
+            <li>Notificá de inmediato ante sospecha de acceso no autorizado o pérdida de credenciales.</li>
+        </ul>
+
+        <h4>12) Calidad y veracidad de los datos</h4>
+        <ul>
+            <li>Registrá información <strong>completa, exacta y trazable</strong>.</li>
+            <li>No alteres, ocultes ni elimines registros salvo procesos autorizados por el área responsable.</li>
+        </ul>
+
+        <h4>13) Usos prohibidos</h4>
+        <ul>
+            <li>Compartir usuarios/contraseñas o intentar eludir controles de acceso.</li>
+            <li>Ingresar información falsa o manipular datos con fines ajenos a la operatoria.</li>
+            <li>Extraer datos para fines no autorizados o difundir información confidencial.</li>
+            <li>Intentar vulnerar la seguridad o disponibilidad del sistema.</li>
+        </ul>
+
+        <h4>14) Auditoría y sanciones</h4>
+        <p>
+            El organismo podrá auditar el uso del sistema. Las infracciones a esta política o a la normativa aplicable
+            podrán dar lugar a medidas disciplinarias y/o acciones legales.
+        </p>
+
+        <h4>15) Cambios en esta política</h4>
+        <p>
+            Podremos actualizar esta política. La versión vigente será la publicada en esta página con su fecha de actualización.
+        </p>
+
+        <!-- ======= NUEVOS PUNTOS ======= -->
+
+        <h4>16) Compromiso de registro en el sistema</h4>
+        <p>
+            La persona usuaria se compromete a <strong>cargar los datos</strong> de su operatoria en este sistema en tiempo y forma,
+            siguiendo los procedimientos vigentes del laboratorio. La omisión o demora injustificada en el registro
+            puede afectar la trazabilidad y la calidad de la información.
+        </p>
+
+        <h4>17) Convivencia con planillas en papel</h4>
+        <p>
+            La carga en este sistema <strong>no reemplaza</strong> las planillas o registros en papel exigidos por normativa
+            o por los procedimientos internos del área. Ambos registros conviven y deben mantenerse consistentes; en caso de
+            discrepancias, se aplicará el procedimiento de conciliación y corrección definido por el área responsable.
+        </p>
+
+        <h4>18) Infraestructura y disponibilidad del servicio</h4>
+        <p>
+            La aplicación se aloja en la plataforma <strong>Render</strong>. En el plan actual, el servicio puede entrar en
+            <strong>modo suspensión</strong> automáticamente tras un breve período de inactividad
+            (aprox. <strong>50&nbsp;segundos</strong>), lo que puede ocasionar un <em>arranque en frío</em> con una demora
+            inicial al volver a acceder. Este comportamiento es propio del entorno de alojamiento y no implica pérdida de datos.
+        </p>
+
+        <h4>19) Almacenamiento y respaldos</h4>
+        <p>
+            Los datos se almacenan en una <strong>base de datos</strong> gestionada por el proveedor de infraestructura.
+            Se realizan <strong>respaldos frecuentes</strong> (backups), combinando mecanismos automáticos del proveedor
+            con copias administrativas del área responsable, a fin de asegurar la recuperación ante incidentes.
+            Los respaldos están destinados a continuidad operativa y auditoría, y no implican cesión de datos a terceros.
+        </p>
+
+        <hr />
+    </div>
+</div>
+
+
