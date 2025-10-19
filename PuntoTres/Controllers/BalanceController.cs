@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PuntoTres.Data;
@@ -31,7 +31,7 @@ namespace PuntoTres.Controllers
 
             var desde = vm.Desde.Value.Date;
             var hasta = vm.Hasta.Value.Date.AddDays(1).AddTicks(-1); // incluye todo el día
-            var code = vm.CodigoInterno.Trim();
+            var code  = vm.CodigoInterno.Trim();
 
             var q = _db.SolucionesPreparadas
                        .AsNoTracking()
@@ -40,11 +40,19 @@ namespace PuntoTres.Controllers
 
             vm.Registros = await q.CountAsync();
 
-            // Fallback para SQLite: SUM(decimal) no soportado
+            // === TOTAL USADO ===
+            // SQLite: SUM en memoria; Postgres/otros: SUM en BD
             if (_db.Database.IsSqlite())
+            {
                 vm.TotalUsado = q.AsEnumerable().Sum(s => s.CantidadBase ?? 0m);
+            }
             else
-                vm.TotalUsado = decimal.Round(vm.TotalUsado, 4, MidpointRounding.AwayFromZero);
+            {
+                vm.TotalUsado = await q.SumAsync(s => s.CantidadBase ?? 0m);
+            }
+
+            // Redondeo final (opcional)
+            vm.TotalUsado = decimal.Round(vm.TotalUsado, 4, MidpointRounding.AwayFromZero);
 
             return View(vm);
         }
@@ -58,7 +66,7 @@ namespace PuntoTres.Controllers
 
             var desdeOk = (desde ?? DateTime.Today.AddDays(-30)).Date;
             var hastaOk = (hasta ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
-            var code = codigoInterno.Trim();
+            var code    = codigoInterno.Trim();
 
             var data = await _db.SolucionesPreparadas
                 .AsNoTracking()
