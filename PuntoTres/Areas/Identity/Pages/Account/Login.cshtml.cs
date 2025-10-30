@@ -45,7 +45,7 @@ namespace PuntoTres.Areas.Identity.Pages.Account
 
             [Required]
             [DataType(DataType.Password)]
-            [Display(Name = "ContraseÒa")]
+            [Display(Name = "Contrase√±a")]
             public string Password { get; set; }
 
             [Display(Name = "Recordarme")]
@@ -83,16 +83,16 @@ namespace PuntoTres.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                _logger.LogInformation("Usuario iniciÛ sesiÛn.");
+                _logger.LogInformation("Usuario inici√≥ sesi√≥n.");
 
-                // Default despuÈs de login ìen frÌoî
+                // Default despu√©s de login ‚Äúen fr√≠o‚Äù
                 var defaultUrl = Url.Action("Index", "SolucionPreparadas") ?? Url.Content("~/");
 
-                // Si no es una URL local o es la raÌz "~/", mandamos al default
+                // Si no es una URL local o es la ra√≠z "~/", mandamos al default
                 if (!Url.IsLocalUrl(returnUrl) || returnUrl == Url.Content("~/"))
                     return LocalRedirect(defaultUrl);
 
-                // Si venÌa de una p·gina protegida, volvemos ahÌ
+                // Si ven√≠a de una p√°gina protegida, volvemos ah√≠
                 return LocalRedirect(returnUrl);
             }
 
@@ -101,11 +101,11 @@ namespace PuntoTres.Areas.Identity.Pages.Account
 
             if (result.IsLockedOut)
             {
-                _logger.LogWarning("Cuenta bloqueada por m˙ltiples intentos fallidos.");
+                _logger.LogWarning("Cuenta bloqueada por m√∫ltiples intentos fallidos.");
                 return RedirectToPage("./Lockout");
             }
 
-            ModelState.AddModelError(string.Empty, "Usuario o contraseÒa inv·lidos.");
+            ModelState.AddModelError(string.Empty, "Usuario o contrase√±a inv√°lidos.");
             return Page();
         }
     }
